@@ -96,8 +96,6 @@ fn build_wolfssl(wolfssl_src: &Path) -> PathBuf {
         .disable("sha3", None)
         // Disable dynamic library
         .disable_shared()
-        // Disable sys ca certificate store
-        .disable("sys-ca-certs", None)
         // Disable dilithium
         .disable("dilithium", None)
         // Enable AES bitsliced implementation (cache attack safe)
@@ -354,6 +352,12 @@ fn main() -> std::io::Result<()> {
         "cargo:rustc-link-search=native={}",
         wolfssl_install_dir.join("lib").to_str().unwrap()
     );
+
+    // Link against Core Foundation on macOS
+    if cfg!(target_os = "macos") {
+        println!("cargo:rustc-link-lib=framework=CoreFoundation");
+        println!("cargo:rustc-link-lib=framework=Security");
+    }
 
     // Invalidate the built crate whenever the wrapper changes
     println!("cargo:rerun-if-changed=wrapper.h");
