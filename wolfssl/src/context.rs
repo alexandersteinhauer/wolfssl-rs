@@ -422,6 +422,18 @@ impl ContextBuilder {
         self
     }
 
+    /// Wraps `wolfSSL_CTX_load_system_CA_certs`[0]
+    ///
+    /// [0]: https://www.wolfssl.com/documentation/manuals/wolfssl/ssl_8h.html#function-wolfssl_ctx_load_system_ca_certs
+    pub fn with_system_ca_certs(self) -> Result<Self> {
+        let result = unsafe { wolfssl_sys::wolfSSL_CTX_load_system_CA_certs(self.ctx.as_ptr()) };
+        if result == wolfssl_sys::WOLFSSL_SUCCESS as c_int {
+            Ok(self)
+        } else {
+            Err(Error::fatal(result))
+        }
+    }
+
     /// Finalizes a `WolfContext`.
     pub fn build(self) -> Context {
         Context {
